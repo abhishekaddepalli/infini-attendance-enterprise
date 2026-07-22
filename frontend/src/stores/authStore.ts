@@ -26,7 +26,7 @@ interface AuthStore extends AuthState {
 export const useAuthStore = create<AuthStore>()(
   persist((set, get) => ({
     user: null, tenant: null, token: null, refreshToken: null,
-    isAuthenticated: false, isLoading: true, requires2FA: false,
+    isAuthenticated: false, isLoading: false, requires2FA: false,
 
     login: async (email, password) => {
       set({ isLoading: true });
