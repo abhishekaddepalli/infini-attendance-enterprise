@@ -1,27 +1,26 @@
 ---
 deployment:
   tasks:
-    # 1. Detect cPanel Subdomain / DocumentRoot Paths
-    - export SUBDOMAIN_APP=/home/$USER/public_html/app
-    - export SUBDOMAIN_API=/home/$USER/public_html/api
+    # 1. Deploy directly to public_html for main domain & subdomains
+    - export DEPLOYPATH=/home/$USER/public_html
     - export BACKENDPATH=/home/$USER/backend
 
     # 2. Ensure directories exist
     - /bin/mkdir -p $BACKENDPATH
-    - /bin/mkdir -p $SUBDOMAIN_APP
-    - /bin/mkdir -p $SUBDOMAIN_API
+    - /bin/mkdir -p $DEPLOYPATH
 
-    # 3. Copy Backend application core
+    # 3. Copy Backend core framework
     - /bin/cp -R backend/. $BACKENDPATH/
 
-    # 4. Copy Backend API Public files (INCLUDING .htaccess)
-    - /bin/cp -R backend/public/. $SUBDOMAIN_API/
-    - /bin/cp backend/public/.htaccess $SUBDOMAIN_API/.htaccess
+    # 4. Deploy Frontend static app directly to public_html (main domain)
+    - /bin/cp -R frontend/dist/. $DEPLOYPATH/
+    - /bin/cp frontend/dist/.htaccess $DEPLOYPATH/.htaccess
 
-    # 5. Copy Frontend dist SPA files (INCLUDING .htaccess)
-    - /bin/cp -R frontend/dist/. $SUBDOMAIN_APP/
-    - /bin/cp frontend/dist/.htaccess $SUBDOMAIN_APP/.htaccess
+    # 5. Deploy Backend API to public_html/api
+    - /bin/mkdir -p $DEPLOYPATH/api
+    - /bin/cp -R backend/public/. $DEPLOYPATH/api/
+    - /bin/cp backend/public/.htaccess $DEPLOYPATH/api/.htaccess
 
-    # 6. Copy Installer
-    - /bin/mkdir -p $SUBDOMAIN_APP/installer
-    - /bin/cp -R installer/. $SUBDOMAIN_APP/installer/
+    # 6. Deploy Web Installer to public_html/installer
+    - /bin/mkdir -p $DEPLOYPATH/installer
+    - /bin/cp -R installer/. $DEPLOYPATH/installer/
