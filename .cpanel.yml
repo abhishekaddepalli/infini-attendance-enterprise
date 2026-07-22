@@ -13,8 +13,9 @@ deployment:
     - /bin/mkdir -p $PATH2 $PATH2/api $PATH2/installer
     - /bin/mkdir -p $PATH3 $PATH3/api $PATH3/installer
 
-    # 3. CRITICAL: Remove existing assets folders to prevent nested assets/assets/ Linux cp trap
+    # 3. Clean up conflicting root files and old assets
     - /bin/rm -rf $PATH1/assets $PATH2/assets $PATH3/assets
+    - /bin/rm -f $PATH1/index.php $PATH2/index.php $PATH3/index.php
     - /bin/rm -rf $PATH1/src $PATH1/frontend $PATH1/docker $PATH1/docs $PATH1/cpanel_deploy
     - /bin/rm -rf $PATH2/src $PATH2/frontend $PATH2/docker $PATH2/docs $PATH2/cpanel_deploy
     - /bin/rm -rf $PATH3/src $PATH3/frontend $PATH3/docker $PATH3/docs $PATH3/cpanel_deploy
@@ -25,25 +26,25 @@ deployment:
 
     # 5. Copy Frontend dist files to PATH1 (ifa.infiniforge.cloud)
     - /bin/cp -R frontend/dist/* $PATH1/
-    - /bin/cp frontend/dist/.htaccess $PATH1/.htaccess
+    - /bin/cp frontend/dist/htaccess.txt $PATH1/.htaccess
 
     # 6. Copy Frontend dist files to PATH2
     - /bin/cp -R frontend/dist/* $PATH2/
-    - /bin/cp frontend/dist/.htaccess $PATH2/.htaccess
+    - /bin/cp frontend/dist/htaccess.txt $PATH2/.htaccess
 
     # 7. Copy Frontend dist files to PATH3 (public_html)
     - /bin/cp -R frontend/dist/* $PATH3/
-    - /bin/cp frontend/dist/.htaccess $PATH3/.htaccess
+    - /bin/cp frontend/dist/htaccess.txt $PATH3/.htaccess
 
-    # 8. Copy Backend API Public files
+    # 8. Copy Backend API Public files to api/
     - /bin/cp -R backend/public/* $PATH1/api/
-    - /bin/cp backend/public/.htaccess $PATH1/api/.htaccess
+    - /bin/cp backend/public/htaccess.txt $PATH1/api/.htaccess
     - /bin/cp -R backend/public/* $PATH2/api/
-    - /bin/cp backend/public/.htaccess $PATH2/api/.htaccess
+    - /bin/cp backend/public/htaccess.txt $PATH2/api/.htaccess
     - /bin/cp -R backend/public/* $PATH3/api/
-    - /bin/cp backend/public/.htaccess $PATH3/api/.htaccess
+    - /bin/cp backend/public/htaccess.txt $PATH3/api/.htaccess
 
-    # 9. Copy Web Installer
+    # 9. Copy Web Installer to installer/
     - /bin/cp -R installer/* $PATH1/installer/
     - /bin/cp -R installer/* $PATH2/installer/
     - /bin/cp -R installer/* $PATH3/installer/
