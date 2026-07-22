@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    # 1. Ensure target directories exist using relative paths from repository root
+    # 1. Ensure target directories exist
     - /bin/mkdir -p ../../backend
     - /bin/mkdir -p ../../public_html
     - /bin/mkdir -p ../../public_html/api
@@ -9,14 +9,15 @@ deployment:
 
     # 2. Copy Backend core application files outside web root
     - /bin/cp -R backend/. ../../backend/
+    - /bin/cp backend/env.example ../../backend/.env
 
     # 3. Copy Frontend static dist files directly into public_html
     - /bin/cp -R frontend/dist/. ../../public_html/
-    - /bin/cp frontend/dist/.htaccess ../../public_html/.htaccess
+    - /bin/cp frontend/dist/htaccess.txt ../../public_html/.htaccess
 
     # 4. Copy Backend API Public files to public_html/api
     - /bin/cp -R backend/public/. ../../public_html/api/
-    - /bin/cp backend/public/.htaccess ../../public_html/api/.htaccess
+    - /bin/cp backend/public/htaccess.txt ../../public_html/api/.htaccess
 
     # 5. Copy Web Installer to public_html/installer
     - /bin/cp -R installer/. ../../public_html/installer/
