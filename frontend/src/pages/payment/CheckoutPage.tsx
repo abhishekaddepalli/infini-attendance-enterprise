@@ -132,14 +132,14 @@ export default function CheckoutPage() {
 
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border p-6">
           <div className="mb-4 flex gap-2">
-            <Input value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} placeholder="Coupon code" />
+            <Input value={couponCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCouponCode(e.target.value.toUpperCase())} placeholder="Coupon code" />
             <Button variant="outline" onClick={handleApplyCoupon}><Gift className="h-4 w-4" /></Button>
           </div>
           {discount > 0 && <p className="text-sm text-green-600 mb-4">₹{discount} discount applied!</p>}
-          <div className="flex justify-between font-bold text-navy-800 mb-6">
+          <div className="flex justify-between font-bold text-slate-800 mb-6">
             <span>Total</span><span>₹{total.toLocaleString('en-IN')}</span>
           </div>
-          <Button variant="premium" size="lg" className="w-full" onClick={handlePayment} loading={isProcessing}>
+          <Button size="lg" className="w-full" onClick={handlePayment} disabled={isProcessing}>
             <IndianRupee className="mr-2 h-5 w-5" /> Pay ₹{total.toLocaleString('en-IN')}
           </Button>
         </div>

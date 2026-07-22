@@ -34,36 +34,36 @@ api.interceptors.response.use(
 );
 
 export const authApi = {
-  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
-  logout: () => api.post('/auth/logout'),
-  refreshToken: (token: string) => api.post('/auth/refresh', { refresh_token: token }),
-  getUser: () => api.get('/auth/user'),
+  login: (email: string, password: string): Promise<any> => api.post('/auth/login', { email, password }),
+  logout: (): Promise<any> => api.post('/auth/logout'),
+  refreshToken: (token: string): Promise<any> => api.post('/auth/refresh', { refresh_token: token }),
+  getUser: (): Promise<any> => api.get('/auth/user'),
 };
 
 export const attendanceApi = {
-  getDashboardStats: (tenantId: number, range: string) => api.get(`/${tenantId}/dashboard/stats?range=${range}`),
-  getAttendanceTrends: (tenantId: number, range: string) => api.get(`/${tenantId}/dashboard/trends?range=${range}`),
-  checkIn: (data: any) => api.post('/attendance/check-in', data),
-  checkOut: (data: any) => api.post('/attendance/check-out', data),
-  getTodaySummary: () => api.get('/attendance/today-summary'),
+  getDashboardStats: (tenantId: number | string, range: string): Promise<any> => api.get(`/${tenantId}/dashboard/stats?range=${range}`),
+  getAttendanceTrends: (tenantId: number | string, range: string): Promise<any> => api.get(`/${tenantId}/dashboard/trends?range=${range}`),
+  checkIn: (data: any): Promise<any> => api.post('/attendance/check-in', data),
+  checkOut: (data: any): Promise<any> => api.post('/attendance/check-out', data),
+  getTodaySummary: (): Promise<any> => api.get('/attendance/today-summary'),
 };
 
 export const paymentApi = {
-  createRazorpayOrder: (data: any) => api.post('/payment/razorpay/create-order', data),
-  verifyRazorpayPayment: (data: any) => api.post('/payment/razorpay/verify', data),
-  applyCoupon: (code: string, plan: string, billing: string) => api.post('/payment/apply-coupon', { coupon_code: code, plan, billing }),
-  getBillingHistory: () => api.get('/payment/billing-history'),
+  createRazorpayOrder: (data: any): Promise<any> => api.post('/payment/razorpay/create-order', data),
+  verifyRazorpayPayment: (data: any): Promise<any> => api.post('/payment/razorpay/verify', data),
+  applyCoupon: (code: string, plan: string, billing: string): Promise<any> => api.post('/payment/apply-coupon', { coupon_code: code, plan, billing }),
+  getBillingHistory: (): Promise<any> => api.get('/payment/billing-history'),
 };
 
 export const faceRecognitionApi = {
-  verifyFace: (data: any) => api.post('/face-recognition/verify', data),
-  registerFace: (data: FormData) => api.post('/face-recognition/register', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  verifyFace: (data: any): Promise<any> => api.post('/face-recognition/verify', data),
+  registerFace: (data: FormData): Promise<any> => api.post('/face-recognition/register', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 export const deviceApi = {
-  getDevices: (params?: any) => api.get('/devices', { params }),
-  syncAttendance: (id: number) => api.post(`/devices/${id}/sync`),
-  discover: (subnet: string) => api.post('/devices/discover', { subnet }),
+  getDevices: (params?: any): Promise<any> => api.get('/devices', { params }),
+  syncAttendance: (id: number): Promise<any> => api.post(`/devices/${id}/sync`),
+  discover: (subnet: string): Promise<any> => api.post('/devices/discover', { subnet }),
 };
 
 export default api;
