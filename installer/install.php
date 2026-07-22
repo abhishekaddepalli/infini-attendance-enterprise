@@ -39,6 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test_db'])) {
         $dbStatus = 'error: ' . $e->getMessage();
     }
 }
+
+$adminStatus = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_admin'])) {
+    $adminName = $_POST['admin_name'] ?? 'Super Admin';
+    $adminEmail = $_POST['admin_email'] ?? 'admin@company.com';
+    $adminPass = $_POST['admin_pass'] ?? 'admin123';
+
+    $_SESSION['admin_credentials'] = [
+        'name' => $adminName,
+        'email' => $adminEmail,
+        'password' => $adminPass
+    ];
+
+    $adminStatus = 'success';
+    $step = 4;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test_db'])) {
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
         .alert-success { background: #065f46; color: #a7f3d0; }
         .alert-error { background: #991b1b; color: #fecaca; }
+        .cred-box { background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #334155; margin-top: 16px; font-family: monospace; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -80,7 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test_db'])) {
     <div class="step-indicator">
         <span class="step-item <?php echo $step == 1 ? 'active' : ''; ?>">1. Requirements</span>
         <span class="step-item <?php echo $step == 2 ? 'active' : ''; ?>">2. Database</span>
-        <span class="step-item <?php echo $step == 3 ? 'active' : ''; ?>">3. Finalize</span>
+        <span class="step-item <?php echo $step == 3 ? 'active' : ''; ?>">3. Admin Account</span>
+        <span class="step-item <?php echo $step == 4 ? 'active' : ''; ?>">4. Ready</span>
     </div>
 
     <?php if ($step == 1): ?>
@@ -140,14 +158,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test_db'])) {
         </form>
 
         <?php if ($dbStatus === 'success'): ?>
-            <a href="?step=3" class="btn" style="background: #10b981; margin-top: 12px;">Proceed to Finalize Installation &rarr;</a>
+            <a href="?step=3" class="btn" style="background: #10b981; margin-top: 12px;">Proceed to Super Admin Setup &rarr;</a>
         <?php endif; ?>
 
+    <?php elseif ($step == 3): ?>
+        <h3 style="margin-bottom: 16px;">Super Admin Account Setup</h3>
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">Create your master administrator login credentials to access the enterprise control panel.</p>
+
+        <form method="POST" action="?step=3">
+            <input type="hidden" name="create_admin" value="1">
+            <div class="form-group">
+                <label>Super Admin Full Name</label>
+                <input type="text" name="admin_name" value="Super Admin" required>
+            </div>
+            <div class="form-group">
+                <label>Super Admin Email</label>
+                <input type="email" name="admin_email" value="admin@company.com" required>
+            </div>
+            <div class="form-group">
+                <label>Super Admin Password</label>
+                <input type="password" name="admin_pass" value="admin123" required>
+            </div>
+            <button type="submit" class="btn" style="background: #10b981;">Create Master Admin Account &rarr;</button>
+        </form>
+
     <?php else: ?>
-        <h3 style="margin-bottom: 16px;">Installation Complete!</h3>
-        <div class="alert alert-success">Infini Attendance Enterprise has been configured.</div>
-        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">Your environment settings and database connections are ready for production.</p>
-        <a href="/" class="btn">Launch Application Portal &rarr;</a>
+        <h3 style="margin-bottom: 16px;">🎉 Installation Complete!</h3>
+        <div class="alert alert-success">Infini Attendance Enterprise has been configured successfully.</div>
+        
+        <p style="color: #cbd5e1; font-size: 14px; margin-top: 12px;">Your Super Admin Account Credentials:</p>
+        <div class="cred-box">
+            <div><strong>Portal URL:</strong> https://ifa.infiniforge.cloud/login</div>
+            <div><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['admin_credentials']['email'] ?? 'admin@company.com'); ?></div>
+            <div><strong>Password:</strong> <?php echo htmlspecialchars($_SESSION['admin_credentials']['password'] ?? 'admin123'); ?></div>
+            <div><strong>Role:</strong> Super Admin / Master Administrator</div>
+        </div>
+
+        <a href="/login" class="btn" style="background: #6366f1; margin-top: 20px;">Launch Sign In Portal &rarr;</a>
     <?php endif; ?>
 </div>
 </body>

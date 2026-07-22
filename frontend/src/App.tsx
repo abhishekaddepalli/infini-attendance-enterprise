@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { useAuthStore } from '@/stores/authStore';
 import { LoadingScreen } from '@/components/LoadingScreen';
 
+const LandingPage = lazy(() => import('@/pages/home/LandingPage'));
 const Login = lazy(() => import('@/pages/auth/Login'));
 const TwoFactorAuth = lazy(() => import('@/pages/auth/TwoFactorAuth'));
 const OrganizationDashboard = lazy(() => import('@/pages/dashboard/OrganizationDashboard'));
@@ -42,6 +43,7 @@ export default function App() {
       <BrowserRouter>
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/2fa" element={<TwoFactorAuth />} />
             <Route path="/checkout" element={<CheckoutPage />} />
@@ -66,7 +68,6 @@ export default function App() {
               <Route path="settings" element={<Settings />} />
             </Route>
 
-            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={
               <div className="flex h-screen items-center justify-center">
                 <div className="text-center">
