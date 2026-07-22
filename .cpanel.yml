@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/$USER/public_html
+    - export BACKENDPATH=/home/$USER/backend
+    - /bin/mkdir -p $BACKENDPATH
+    - /bin/cp -R backend/* $BACKENDPATH/
+    - /bin/mkdir -p $DEPLOYPATH/api
+    - /bin/cp -R backend/public/* $DEPLOYPATH/api/
+    - /bin/cp -R installer $DEPLOYPATH/
