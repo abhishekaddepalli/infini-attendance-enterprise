@@ -1,0 +1,204 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: infini-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-infini_root_2024}
+      MYSQL_DATABASE: ${DB_DATABASE:-infini_attendance}
+      MYSQL_USER: ${DB_USERNAME:-infini_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-infini_secure_pass}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - infini-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: infini-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-infini_redis_pass}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - infini-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infini-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - backend_storage:/var/www/html/storage
+      - ./backend:/var/www/html:delegated
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - infini-network
+    env_file:
+      - ./backend/.env
+
+  queue-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infini-queue-worker
+    restart: unless-stopped
+    command: php artisan queue:work --tries=3 --timeout=300
+    depends_on:
+      - backend
+    networks:
+      - infini-network
+    env_file:
+      - ./backend/.env
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infini-scheduler
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo '* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1' > /etc/crontabs/root
+        crond -f -l 2
+    depends_on:
+      - backend
+    networks:
+      - infini-network
+
+  websocket-server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infini-websockets
+    restart: unless-stopped
+    command: php artisan websockets:serve
+    ports:
+      - "${WEBSOCKET_PORT:-6001}:6001"
+    depends_on:
+      - backend
+    networks:
+      - infini-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infini-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - backend
+    networks:
+      - infini-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: infini-nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - infini-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: infini-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-infini_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-infini_minio_pass}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - infini-network
+
+  mongodb:
+    image: mongo:7
+    container_name: infini-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-infini_mongo_pass}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - infini-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: infini-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - infini-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: infini-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-infini_grafana_pass}
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - infini-network
+
+networks:
+  infini-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
+  backend_storage:
+  minio_data:
+  mongodb_data:
+  prometheus_data:
+  grafana_data:
