@@ -1,11 +1,23 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/$USER/public_html
+    # 1. Base Paths setup
+    - export SUBDOMAIN_APP=/home/$USER/public_html/app
+    - export SUBDOMAIN_API=/home/$USER/public_html/api
     - export BACKENDPATH=/home/$USER/backend
+
+    # 2. Deploy Backend Core outside public web directory
     - /bin/mkdir -p $BACKENDPATH
     - /bin/cp -R backend/* $BACKENDPATH/
-    - /bin/mkdir -p $DEPLOYPATH/api
-    - /bin/cp -R backend/public/* $DEPLOYPATH/api/
-    - /bin/cp -R frontend/dist/* $DEPLOYPATH/
-    - /bin/cp -R installer $DEPLOYPATH/
+
+    # 3. Deploy API Subdomain (api.yourdomain.com)
+    - /bin/mkdir -p $SUBDOMAIN_API
+    - /bin/cp -R backend/public/* $SUBDOMAIN_API/
+
+    # 4. Deploy Frontend Subdomain (app.yourdomain.com)
+    - /bin/mkdir -p $SUBDOMAIN_APP
+    - /bin/cp -R frontend/dist/* $SUBDOMAIN_APP/
+
+    # 5. Deploy Web Installer
+    - /bin/mkdir -p $SUBDOMAIN_APP/installer
+    - /bin/cp -R installer/* $SUBDOMAIN_APP/installer/
