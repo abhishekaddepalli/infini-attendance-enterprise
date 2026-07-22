@@ -11,7 +11,9 @@ api.interceptors.request.use((config) => {
   const { token, tenant } = useAuthStore.getState();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (tenant) config.headers['X-Tenant-ID'] = tenant.id;
-  config.headers['X-Request-ID'] = crypto.randomUUID();
+  config.headers['X-Request-ID'] = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+    ? crypto.randomUUID()
+    : 'req-' + Math.random().toString(36).substring(2, 11);
   return config;
 });
 
