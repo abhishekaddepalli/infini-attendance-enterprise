@@ -1,26 +1,22 @@
 ---
 deployment:
   tasks:
-    # 1. Deploy directly to public_html for main domain & subdomains
-    - export DEPLOYPATH=/home/$USER/public_html
-    - export BACKENDPATH=/home/$USER/backend
+    # 1. Ensure target directories exist using relative paths from repository root
+    - /bin/mkdir -p ../../backend
+    - /bin/mkdir -p ../../public_html
+    - /bin/mkdir -p ../../public_html/api
+    - /bin/mkdir -p ../../public_html/installer
 
-    # 2. Ensure directories exist
-    - /bin/mkdir -p $BACKENDPATH
-    - /bin/mkdir -p $DEPLOYPATH
+    # 2. Copy Backend core application files outside web root
+    - /bin/cp -R backend/. ../../backend/
 
-    # 3. Copy Backend core framework
-    - /bin/cp -R backend/. $BACKENDPATH/
+    # 3. Copy Frontend static dist files directly into public_html
+    - /bin/cp -R frontend/dist/. ../../public_html/
+    - /bin/cp frontend/dist/.htaccess ../../public_html/.htaccess
 
-    # 4. Deploy Frontend static app directly to public_html (main domain)
-    - /bin/cp -R frontend/dist/. $DEPLOYPATH/
-    - /bin/cp frontend/dist/.htaccess $DEPLOYPATH/.htaccess
+    # 4. Copy Backend API Public files to public_html/api
+    - /bin/cp -R backend/public/. ../../public_html/api/
+    - /bin/cp backend/public/.htaccess ../../public_html/api/.htaccess
 
-    # 5. Deploy Backend API to public_html/api
-    - /bin/mkdir -p $DEPLOYPATH/api
-    - /bin/cp -R backend/public/. $DEPLOYPATH/api/
-    - /bin/cp backend/public/.htaccess $DEPLOYPATH/api/.htaccess
-
-    # 6. Deploy Web Installer to public_html/installer
-    - /bin/mkdir -p $DEPLOYPATH/installer
-    - /bin/cp -R installer/. $DEPLOYPATH/installer/
+    # 5. Copy Web Installer to public_html/installer
+    - /bin/cp -R installer/. ../../public_html/installer/
