@@ -1,36 +1,42 @@
 ---
 deployment:
   tasks:
-    # 1. Automatically clean up leftover raw source folders in public_html to prevent conflicts
-    - /bin/rm -rf ../../public_html/src
-    - /bin/rm -rf ../../public_html/frontend
-    - /bin/rm -rf ../../public_html/docker
-    - /bin/rm -rf ../../public_html/docs
-    - /bin/rm -rf ../../public_html/cpanel_deploy
-    - /bin/rm -f ../../public_html/package.json
-    - /bin/rm -f ../../public_html/tsconfig.json
-    - /bin/rm -f ../../public_html/vite.config.ts
-    - /bin/rm -f ../../public_html/tailwind.config.ts
-    - /bin/rm -f ../../public_html/postcss.config.js
-    - /bin/rm -f ../../public_html/nginx-default.conf
+    # 1. Target Paths (Supports both ifa.infiniforge.cloud and public_html)
+    - export DOMAINPATH=../../ifa.infiniforge.cloud
+    - export PUBLICPATH=../../public_html
+    - export BACKENDPATH=../../backend
 
-    # 2. Ensure target directories exist
-    - /bin/mkdir -p ../../backend
-    - /bin/mkdir -p ../../public_html
-    - /bin/mkdir -p ../../public_html/api
-    - /bin/mkdir -p ../../public_html/installer
+    # 2. Ensure directories exist
+    - /bin/mkdir -p $BACKENDPATH
+    - /bin/mkdir -p $DOMAINPATH
+    - /bin/mkdir -p $DOMAINPATH/api
+    - /bin/mkdir -p $DOMAINPATH/installer
+    - /bin/mkdir -p $PUBLICPATH
+    - /bin/mkdir -p $PUBLICPATH/api
+    - /bin/mkdir -p $PUBLICPATH/installer
 
-    # 3. Copy Backend application core outside web root
-    - /bin/cp -R backend/. ../../backend/
-    - /bin/cp backend/env.example ../../backend/.env
+    # 3. Clean up raw source code folders in both web roots to avoid conflicts
+    - /bin/rm -rf $DOMAINPATH/src $DOMAINPATH/frontend $DOMAINPATH/docker $DOMAINPATH/docs $DOMAINPATH/cpanel_deploy
+    - /bin/rm -rf $PUBLICPATH/src $PUBLICPATH/frontend $PUBLICPATH/docker $PUBLICPATH/docs $PUBLICPATH/cpanel_deploy
 
-    # 4. Copy Compiled Frontend Production Dist directly into public_html
-    - /bin/cp -R frontend/dist/. ../../public_html/
-    - /bin/cp frontend/dist/htaccess.txt ../../public_html/.htaccess
+    # 4. Copy Backend application core outside web root
+    - /bin/cp -R backend/. $BACKENDPATH/
+    - /bin/cp backend/env.example $BACKENDPATH/.env
 
-    # 5. Copy Backend API Public files to public_html/api
-    - /bin/cp -R backend/public/. ../../public_html/api/
-    - /bin/cp backend/public/htaccess.txt ../../public_html/api/.htaccess
+    # 5. Copy Frontend static dist to DOMAINPATH (ifa.infiniforge.cloud)
+    - /bin/cp -R frontend/dist/. $DOMAINPATH/
+    - /bin/cp frontend/dist/htaccess.txt $DOMAINPATH/.htaccess
 
-    # 6. Copy Web Installer to public_html/installer
-    - /bin/cp -R installer/. ../../public_html/installer/
+    # 6. Copy Frontend static dist to PUBLICPATH (public_html fallback)
+    - /bin/cp -R frontend/dist/. $PUBLICPATH/
+    - /bin/cp frontend/dist/htaccess.txt $PUBLICPATH/.htaccess
+
+    # 7. Copy Backend API Public files to api/
+    - /bin/cp -R backend/public/. $DOMAINPATH/api/
+    - /bin/cp backend/public/htaccess.txt $DOMAINPATH/api/.htaccess
+    - /bin/cp -R backend/public/. $PUBLICPATH/api/
+    - /bin/cp backend/public/htaccess.txt $PUBLICPATH/api/.htaccess
+
+    # 8. Copy Web Installer to installer/
+    - /bin/cp -R installer/. $DOMAINPATH/installer/
+    - /bin/cp -R installer/. $PUBLICPATH/installer/
