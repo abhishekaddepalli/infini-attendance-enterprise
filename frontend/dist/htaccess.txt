@@ -1,9 +1,0 @@
-# Force Apache to prioritize index.html over index.php for front-end routes
-DirectoryIndex index.html index.php
-
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.html [QSA,L]
-</IfModule>
