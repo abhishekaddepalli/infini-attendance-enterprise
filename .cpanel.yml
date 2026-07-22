@@ -1,23 +1,36 @@
 ---
 deployment:
   tasks:
-    # 1. Ensure target directories exist
+    # 1. Automatically clean up leftover raw source folders in public_html to prevent conflicts
+    - /bin/rm -rf ../../public_html/src
+    - /bin/rm -rf ../../public_html/frontend
+    - /bin/rm -rf ../../public_html/docker
+    - /bin/rm -rf ../../public_html/docs
+    - /bin/rm -rf ../../public_html/cpanel_deploy
+    - /bin/rm -f ../../public_html/package.json
+    - /bin/rm -f ../../public_html/tsconfig.json
+    - /bin/rm -f ../../public_html/vite.config.ts
+    - /bin/rm -f ../../public_html/tailwind.config.ts
+    - /bin/rm -f ../../public_html/postcss.config.js
+    - /bin/rm -f ../../public_html/nginx-default.conf
+
+    # 2. Ensure target directories exist
     - /bin/mkdir -p ../../backend
     - /bin/mkdir -p ../../public_html
     - /bin/mkdir -p ../../public_html/api
     - /bin/mkdir -p ../../public_html/installer
 
-    # 2. Copy Backend core application files outside web root
+    # 3. Copy Backend application core outside web root
     - /bin/cp -R backend/. ../../backend/
     - /bin/cp backend/env.example ../../backend/.env
 
-    # 3. Copy Frontend static dist files directly into public_html
+    # 4. Copy Compiled Frontend Production Dist directly into public_html
     - /bin/cp -R frontend/dist/. ../../public_html/
     - /bin/cp frontend/dist/htaccess.txt ../../public_html/.htaccess
 
-    # 4. Copy Backend API Public files to public_html/api
+    # 5. Copy Backend API Public files to public_html/api
     - /bin/cp -R backend/public/. ../../public_html/api/
     - /bin/cp backend/public/htaccess.txt ../../public_html/api/.htaccess
 
-    # 5. Copy Web Installer to public_html/installer
+    # 6. Copy Web Installer to public_html/installer
     - /bin/cp -R installer/. ../../public_html/installer/
